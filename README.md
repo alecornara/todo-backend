@@ -18,3 +18,17 @@ Authorization: mi_api_key_123
 - POST /addGoal
 - DELETE /removeTask
 - DELETE /removeGoal
+
+- # To Do List Backend
+
+Proyecto desarrollado con Node.js y Express para gestionar tareas y metas personales.
+
+## Funciones:
+- Obtener tareas
+- Agregar tareas
+- Eliminar tareas
+- Validación con API Key
+- Códigos:
+  - 200
+  - 400
+  - 401
