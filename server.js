@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const express = require('express');
 const app = express();
 const PORT = 3000;
@@ -5,10 +6,16 @@ const PORT = 3000;
 // API Key personalizada
 const API_KEY = 'mi_api_key_123';
 
-// Middleware para JSON
+mongoose.connect('mongodb://127.0.0.1:27017/todolist')
+.then(() => {
+    console.log('Conectado a MongoDB');
+})
+.catch((error) => {
+    console.log('Error de conexión:', error);
+});
+
 app.use(express.json());
 
-// Middleware de autorización
 app.use((req, res, next) => {
     const authHeader = req.headers.authorization;
 
@@ -21,22 +28,42 @@ app.use((req, res, next) => {
     next();
 });
 
-// Arreglos temporales
-let tasks = [];
-let goals = [];
-
-// GET Tasks
-app.get('/getTasks', (req, res) => {
-    res.json(tasks);
+const taskSchema = new mongoose.Schema({
+    task: String,
+    deadline: String
 });
 
-// GET Goals
-app.get('/getGoals', (req, res) => {
-    res.json(goals);
+const goalSchema = new mongoose.Schema({
+    goal: String,
+    deadline: String
 });
 
-// POST Add Task
-app.post('/addTask', (req, res) => {
+const Task = mongoose.model('Task', taskSchema);
+const Goal = mongoose.model('Goal', goalSchema);
+
+app.get('/getTasks', async (req, res) => {
+    try {
+        const tasks = await Task.find();
+        res.json(tasks);
+    } catch (error) {
+        res.status(500).json({
+            message: 'Error al obtener tareas'
+        });
+    }
+});
+
+app.get('/getGoals', async (req, res) => {
+    try {
+        const goals = await Goal.find();
+        res.json(goals);
+    } catch (error) {
+        res.status(500).json({
+            message: 'Error al obtener metas'
+        });
+    }
+});
+
+app.post('/addTask', async (req, res) => {
     const { task, deadline } = req.body;
 
     if (!task || !deadline) {
@@ -45,16 +72,25 @@ app.post('/addTask', (req, res) => {
         });
     }
 
-    tasks.push({ task, deadline });
+    try {
+        const newTask = new Task({
+            task,
+            deadline
+        });
 
-    res.status(201).json({
-        message: 'Tarea agregada exitosamente',
-        tasks
-    });
+        await newTask.save();
+
+        res.status(201).json({
+            message: 'Tarea agregada exitosamente'
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: 'Error al agregar tarea'
+        });
+    }
 });
 
-// POST Add Goal
-app.post('/addGoal', (req, res) => {
+app.post('/addGoal', async (req, res) => {
     const { goal, deadline } = req.body;
 
     if (!goal || !deadline) {
@@ -63,39 +99,56 @@ app.post('/addGoal', (req, res) => {
         });
     }
 
-    goals.push({ goal, deadline });
+    try {
+        const newGoal = new Goal({
+            goal,
+            deadline
+        });
 
-    res.status(201).json({
-        message: 'Meta agregada exitosamente',
-        goals
-    });
+        await newGoal.save();
+
+        res.status(201).json({
+            message: 'Meta agregada exitosamente'
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: 'Error al agregar meta'
+        });
+    }
 });
 
-// DELETE Remove Task
-app.delete('/removeTask', (req, res) => {
-    const { task } = req.body;
+app.delete('/removeTask/:id', async (req, res) => {
+    const id = req.params.id;
 
-    tasks = tasks.filter(t => t.task !== task);
+    try {
+        await Task.findByIdAndDelete(id);
 
-    res.json({
-        message: 'Tarea eliminada',
-        tasks
-    });
+        res.json({
+            message: 'Tarea eliminada'
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: 'Error al eliminar tarea'
+        });
+    }
 });
 
-// DELETE Remove Goal
-app.delete('/removeGoal', (req, res) => {
-    const { goal } = req.body;
+app.delete('/removeGoal/:id', async (req, res) => {
+    const id = req.params.id;
 
-    goals = goals.filter(g => g.goal !== goal);
+    try {
+        await Goal.findByIdAndDelete(id);
 
-    res.json({
-        message: 'Meta eliminada',
-        goals
-    });
+        res.json({
+            message: 'Meta eliminada'
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: 'Error al eliminar meta'
+        });
+    }
 });
 
-// Iniciar servidor
 app.listen(PORT, () => {
     console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
