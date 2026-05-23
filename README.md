@@ -1,16 +1,23 @@
 # React + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Este proyecto utiliza React junto con Vite para ofrecer un entorno de desarrollo rápido y moderno, con soporte para HMR (Hot Module Replacement) y configuración básica de ESLint.
 
-Currently, two official plugins are available:
+Actualmente, hay disponibles dos plugins oficiales:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) utiliza [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) utiliza [SWC](https://swc.rs/)
 
 ## React Compiler
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+El React Compiler no está habilitado en esta plantilla debido a su impacto en el rendimiento durante el desarrollo y la compilación.  
+Para agregarlo, consulta la documentación oficial:
 
-## Expanding the ESLint configuration
+https://react.dev/learn/react-compiler/installation
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Ampliando la configuración de ESLint
+
+Si estás desarrollando una aplicación para producción, se recomienda utilizar TypeScript con reglas de linting basadas en tipos.
+
+Puedes consultar la plantilla oficial de TypeScript para aprender cómo integrar TypeScript y `typescript-eslint` en tu proyecto:
+
+https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts
