@@ -1,9 +1,10 @@
 const mongoose = require('mongoose');
 const express = require('express');
+const cors = require('cors');
+
 const app = express();
 const PORT = 3000;
 
-// API Key personalizada
 const API_KEY = 'mi_api_key_123';
 
 mongoose.connect('mongodb://127.0.0.1:27017/todolist')
@@ -15,7 +16,9 @@ mongoose.connect('mongodb://127.0.0.1:27017/todolist')
 });
 
 app.use(express.json());
+app.use(cors());
 
+// Middleware de autorización (API KEY)
 app.use((req, res, next) => {
     const authHeader = req.headers.authorization;
 
@@ -28,6 +31,7 @@ app.use((req, res, next) => {
     next();
 });
 
+// Schemas
 const taskSchema = new mongoose.Schema({
     task: String,
     deadline: String
@@ -38,9 +42,15 @@ const goalSchema = new mongoose.Schema({
     deadline: String
 });
 
+// Models
 const Task = mongoose.model('Task', taskSchema);
 const Goal = mongoose.model('Goal', goalSchema);
 
+//
+// ======================= TASKS =======================
+//
+
+// GET TASKS
 app.get('/getTasks', async (req, res) => {
     try {
         const tasks = await Task.find();
@@ -52,6 +62,51 @@ app.get('/getTasks', async (req, res) => {
     }
 });
 
+// ADD TASK
+app.post('/addTask', async (req, res) => {
+    const { task, deadline } = req.body;
+
+    if (!task || !deadline) {
+        return res.status(400).json({
+            message: 'Task y deadline son requeridos'
+        });
+    }
+
+    try {
+        const newTask = new Task({ task, deadline });
+        await newTask.save();
+
+        res.status(201).json(newTask);
+
+    } catch (error) {
+        res.status(500).json({
+            message: 'Error al agregar tarea'
+        });
+    }
+});
+
+app.delete('/removeTask', async (req, res) => {
+    const { id } = req.body;
+
+    try {
+        await Task.findByIdAndDelete(id);
+
+        res.json({
+            message: 'Tarea eliminada'
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            message: 'Error al eliminar tarea'
+        });
+    }
+});
+
+//
+// ======================= GOALS =======================
+//
+
+// GET GOALS
 app.get('/getGoals', async (req, res) => {
     try {
         const goals = await Goal.find();
@@ -63,33 +118,7 @@ app.get('/getGoals', async (req, res) => {
     }
 });
 
-app.post('/addTask', async (req, res) => {
-    const { task, deadline } = req.body;
-
-    if (!task || !deadline) {
-        return res.status(400).json({
-            message: 'Task y deadline son requeridos'
-        });
-    }
-
-    try {
-        const newTask = new Task({
-            task,
-            deadline
-        });
-
-        await newTask.save();
-
-        res.status(201).json({
-            message: 'Tarea agregada exitosamente'
-        });
-    } catch (error) {
-        res.status(500).json({
-            message: 'Error al agregar tarea'
-        });
-    }
-});
-
+// ADD GOAL
 app.post('/addGoal', async (req, res) => {
     const { goal, deadline } = req.body;
 
@@ -100,16 +129,11 @@ app.post('/addGoal', async (req, res) => {
     }
 
     try {
-        const newGoal = new Goal({
-            goal,
-            deadline
-        });
-
+        const newGoal = new Goal({ goal, deadline });
         await newGoal.save();
 
-        res.status(201).json({
-            message: 'Meta agregada exitosamente'
-        });
+        res.status(201).json(newGoal);
+
     } catch (error) {
         res.status(500).json({
             message: 'Error al agregar meta'
@@ -117,24 +141,8 @@ app.post('/addGoal', async (req, res) => {
     }
 });
 
-app.delete('/removeTask/:id', async (req, res) => {
-    const id = req.params.id;
-
-    try {
-        await Task.findByIdAndDelete(id);
-
-        res.json({
-            message: 'Tarea eliminada'
-        });
-    } catch (error) {
-        res.status(500).json({
-            message: 'Error al eliminar tarea'
-        });
-    }
-});
-
-app.delete('/removeGoal/:id', async (req, res) => {
-    const id = req.params.id;
+app.delete('/removeGoal', async (req, res) => {
+    const { id } = req.body;
 
     try {
         await Goal.findByIdAndDelete(id);
@@ -142,6 +150,7 @@ app.delete('/removeGoal/:id', async (req, res) => {
         res.json({
             message: 'Meta eliminada'
         });
+
     } catch (error) {
         res.status(500).json({
             message: 'Error al eliminar meta'
